@@ -1,4 +1,4 @@
-# **Styling Architecture and Theme System for a Govinci**
+# **Styling Architecture and Theme System for Govinci**
 
 **Ismael GraHms**  
 *April 2025*
