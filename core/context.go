@@ -1,5 +1,7 @@
 package core
 
+import "log"
+
 type Context struct {
 	stateSlots []any
 	cursor     int
@@ -67,7 +69,9 @@ func (ctx *Context) WithTheme(theme *Theme) *Context {
 }
 
 func NewState[T any](ctx *Context, initial T) State[T] {
+	log.Printf("NewState at cursor: %d (len=%d)", ctx.cursor, len(ctx.stateSlots))
 	if ctx.cursor >= len(ctx.stateSlots) {
+		log.Printf("Allocating slot %d with value: %#v", ctx.cursor, initial)
 		ctx.stateSlots = append(ctx.stateSlots, initial)
 	}
 
@@ -79,6 +83,7 @@ func NewState[T any](ctx *Context, initial T) State[T] {
 			return ctx.stateSlots[index].(T)
 		},
 		set: func(val T) {
+			log.Printf("Updating slot %d with value: %#v", index, val)
 			ctx.stateSlots[index] = val
 		},
 	}

@@ -8,7 +8,9 @@ import (
 
 func ExportHTML(node *core.Node) string {
 	var builder strings.Builder
-	renderNode(&builder, node, 0)
+	builder.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<body>\n")
+	renderNode(&builder, node, 1)
+	builder.WriteString("</body>\n</html>")
 	return builder.String()
 }
 
@@ -20,86 +22,99 @@ func renderNode(b *strings.Builder, node *core.Node, indent int) {
 		return
 	}
 
-	attrs := styleAttr(node.Style)
-
-	// Props: data-onclick
-	if id, ok := node.Props["onClick"].(string); ok {
-		attrs += fmt.Sprintf(" data-onclick=\"%s\"", id)
-	}
-
-	// Open tag
-	b.WriteString(fmt.Sprintf("%s<%s%s>", pad, tag, attrs))
-
-	// Content
-	switch node.Type {
-	case "Text":
-		if content, ok := node.Props["content"].(string); ok {
-			b.WriteString(content)
-		}
-	case "Image":
-		if src, ok := node.Props["src"].(string); ok {
-			b.WriteString(fmt.Sprintf("<img src=\"%s\"/>", src))
-		}
-	case "Button":
-		if label, ok := node.Props["label"].(string); ok {
-			b.WriteString(label) // add label inside button
-		}
-	case "Input":
-		b.WriteString("<input")
-		if val, ok := node.Props["value"].(string); ok {
-			b.WriteString(fmt.Sprintf(" value=\"%s\"", val))
-		}
-		if ph, ok := node.Props["placeholder"].(string); ok {
-			b.WriteString(fmt.Sprintf(" placeholder=\"%s\"", ph))
-		}
-		if id, ok := node.Props["onChange"].(string); ok {
-			b.WriteString(fmt.Sprintf(" data-onchange=\"%s\"", id))
-		}
-		b.WriteString(" />")
-	case "Checkbox":
-		b.WriteString("<input type=\"checkbox\"")
-		if val, ok := node.Props["checked"].(bool); ok && val {
-			b.WriteString(" checked")
-		}
-		if id, ok := node.Props["onToggle"].(string); ok {
-			b.WriteString(fmt.Sprintf(" data-ontoggle=\"%s\"", id))
-		}
-		b.WriteString(" />")
-
-	}
+	// Special case for Spacer
 	if node.Type == "Spacer" {
 		if size, ok := node.Props["size"].(int); ok {
-			b.WriteString(fmt.Sprintf("<div style=\"height:%dpx\"></div>", size))
+			b.WriteString(fmt.Sprintf("%s<div style=\"height:%dpx\"></div>\n", pad, size))
 			return
 		}
 	}
 
+	attrs := styleAttr(node.Style)
+
+	// Add dynamic attributes
+	if id, ok := node.Props["onClick"].(string); ok {
+		attrs += fmt.Sprintf(" data-onclick=\"%s\"", id)
+	}
+	if id, ok := node.Props["onChange"].(string); ok {
+		attrs += fmt.Sprintf(" data-onchange=\"%s\"", id)
+	}
+	if id, ok := node.Props["onToggle"].(string); ok {
+		attrs += fmt.Sprintf(" data-ontoggle=\"%s\"", id)
+	}
+
+	// Open tag
+	switch node.Type {
+	case "Input":
+		val := getStr(node.Props["value"])
+		ph := getStr(node.Props["placeholder"])
+		b.WriteString(fmt.Sprintf("%s<input type=\"text\" value=\"%s\" placeholder=\"%s\"%s />\n", pad, val, ph, attrs))
+		return
+	case "InputPassword":
+		val := getStr(node.Props["value"])
+		ph := getStr(node.Props["placeholder"])
+		b.WriteString(fmt.Sprintf("%s<input type=\"password\" value=\"%s\" placeholder=\"%s\"%s />\n", pad, val, ph, attrs))
+		return
+	case "NumericInput":
+		val := getStr(node.Props["value"])
+		b.WriteString(fmt.Sprintf("%s<input type=\"number\" value=\"%s\"%s />\n", pad, val, attrs))
+		return
+	case "TextArea":
+		val := getStr(node.Props["value"])
+		rows := 3
+		if r, ok := node.Props["rows"].(int); ok {
+			rows = r
+		}
+		b.WriteString(fmt.Sprintf("%s<textarea rows=\"%d\"%s>%s</textarea>\n", pad, rows, attrs, val))
+		return
+	case "Checkbox":
+		checked := ""
+		if v, ok := node.Props["checked"].(bool); ok && v {
+			checked = " checked"
+		}
+		b.WriteString(fmt.Sprintf("%s<input type=\"checkbox\"%s%s />\n", pad, checked, attrs))
+		return
+	case "Image":
+		if src, ok := node.Props["src"].(string); ok {
+			b.WriteString(fmt.Sprintf("%s<img src=\"%s\"%s />\n", pad, src, attrs))
+			return
+		}
+	case "Text":
+		b.WriteString(fmt.Sprintf("%s<span%s>", pad, attrs))
+		if content, ok := node.Props["content"].(string); ok {
+			b.WriteString(content)
+		}
+		b.WriteString("</span>\n")
+		return
+	}
+
+	// Default open tag
+	b.WriteString(fmt.Sprintf("%s<%s%s>\n", pad, tag, attrs))
+
 	// Children
 	for _, child := range node.Children {
-		b.WriteString("\n")
 		renderNode(b, child, indent+1)
 	}
 
 	// Close tag
-	b.WriteString(fmt.Sprintf("</%s>\n", tag))
+	b.WriteString(fmt.Sprintf("%s</%s>\n", pad, tag))
+}
+
+func getStr(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return ""
 }
 
 func tagForType(t string) string {
 	switch t {
 	case "Text":
 		return "span"
-	case "Column":
-		return "div"
-	case "Row":
+	case "Column", "Row", "Card", "Scroll", "Fragment", "Theme", "SafeArea":
 		return "div"
 	case "Button":
 		return "button"
-	case "Image":
-		return "div"
-	case "Card":
-		return "div"
-	case "Spacer":
-		return "div"
 	default:
 		return "div"
 	}

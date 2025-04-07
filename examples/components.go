@@ -7,24 +7,40 @@ import (
 )
 
 func App(ctx *core.Context) core.View {
-	return core.WithTheme(&core.DefaultTheme,
-		core.Column(
-			core.Text("👋 Govinci DSL",
-				core.UseStyle(ctx.Theme().Typography.Title),
-				core.Align(core.AlignCenter),
-			),
-			core.Text("Elegant declarative UI in Go.",
-				core.UseStyle(ctx.Theme().Typography.Body),
-				core.Padding(12),
-				core.TextColor(ctx.Theme().Colors.TextSecondary),
-			),
-			core.Text("Styled with love.",
-				core.FontSize(14),
-				core.FontWeight(core.Light),
-				core.TextColor("#999"),
-				core.Margin(8),
-			),
-		),
+	name := core.NewState(ctx, "")
+	password := core.NewState(ctx, "")
+	age := core.NewState(ctx, 0)
+	bio := core.NewState(ctx, "")
+	termsAccepted := core.NewState(ctx, false)
+
+	return core.Column(
+		core.Text("Criar Conta"),
+
+		core.Input(name.Get(), "Nome completo", func(val string) {
+			name.Set(val)
+		}),
+
+		core.InputPassword(password.Get(), "Senha", func(val string) {
+			password.Set(val)
+		}),
+
+		core.NumericInput(age.Get(), func(val int) {
+			age.Set(val)
+		}),
+
+		core.TextArea(bio.Get(), func(val string) {
+			bio.Set(val)
+		}, 4),
+
+		core.Checkbox(termsAccepted.Get(), func(val bool) {
+			termsAccepted.Set(val)
+		}),
+
+		core.Spacer(16),
+
+		core.Text(fmt.Sprintf("Olá, %s (%d anos)", name.Get(), age.Get())),
+		core.Text(fmt.Sprintf("Biografia: %s", bio.Get())),
+		core.Text(fmt.Sprintf("Termos aceites: %v", termsAccepted.Get())),
 	)
 }
 
