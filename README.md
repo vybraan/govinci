@@ -1,6 +1,6 @@
 # Govinci
 
-**Govinci** is a fully idiomatic Go framework for building native mobile UIs using a declarative, functional DSL. Designed entirely in Go — Govinci offers a new approach to mobile development where UI, logic, and state management are written in pure Go, and rendered natively on Android and iOS.
+**Govinci** is a fully idiomatic Go framework for building native mobile apps using a declarative, functional DSL. Designed entirely in Go — Govinci offers a new approach to mobile development where UI, logic, and state management are written in pure Go, and rendered natively on Android and iOS.
 
 ---
 
