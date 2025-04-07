@@ -63,6 +63,21 @@ func registerBoolCallback(fn func(bool)) string {
 	return id
 }
 
+func ReceiveEventPayload(payload map[string]any) {
+	if id, ok := payload["callback"].(string); ok {
+		switch val := payload["value"].(type) {
+		case string:
+			TriggerTextCallback(id, val)
+		case bool:
+			TriggerBoolCallback(id, val)
+		case nil:
+			TriggerCallback(id)
+		default:
+			TriggerCallback(id)
+		}
+	}
+}
+
 func TriggerBoolCallback(id string, val bool) {
 	callbackMux.Lock()
 	defer callbackMux.Unlock()
