@@ -1,4 +1,4 @@
-# **Styling Architecture and Theme System for a Declarative UI DSL in Go**
+# **Styling Architecture and Theme System for Govinci**
 
 **Ismael GraHms**  
 *April 2025*
