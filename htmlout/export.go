@@ -86,6 +86,35 @@ func renderNode(b *strings.Builder, node *core.Node, indent int) {
 		}
 		b.WriteString("</span>\n")
 		return
+	case "Button":
+		b.WriteString(fmt.Sprintf("%s<button%s>", pad, attrs))
+		if label, ok := node.Props["label"].(string); ok {
+			b.WriteString(label)
+		}
+		b.WriteString("</button>\n")
+		return
+	case "Row":
+		b.WriteString(fmt.Sprintf("%s<div style=\"display:flex; flex-direction:row;\">\n", pad))
+		for _, child := range node.Children {
+			renderNode(b, child, indent+1)
+		}
+		b.WriteString(fmt.Sprintf("%s</div>\n", pad))
+		return
+	case "Column":
+		b.WriteString(fmt.Sprintf("%s<div style=\"display:flex; flex-direction:column;\">\n", pad))
+		for _, child := range node.Children {
+			renderNode(b, child, indent+1)
+		}
+		b.WriteString(fmt.Sprintf("%s</div>\n", pad))
+		return
+	case "Scroll":
+		b.WriteString(fmt.Sprintf("%s<div style=\"overflow-y:auto;\">\n", pad))
+		for _, child := range node.Children {
+			renderNode(b, child, indent+1)
+		}
+		b.WriteString(fmt.Sprintf("%s<div>\n", pad))
+		return
+
 	}
 
 	// Default open tag
@@ -134,6 +163,14 @@ func styleAttr(s *core.Style) string {
 	if s.FontSize != 0 {
 		styles = append(styles, fmt.Sprintf("font-size:%dpx", s.FontSize))
 	}
+
+	if s.Width != 0 {
+		styles = append(styles, fmt.Sprintf("width:%dpx", s.Width))
+	}
+	if s.Height != 0 {
+		styles = append(styles, fmt.Sprintf("height:%dpx", s.Height))
+	}
+
 	if s.Align != "" {
 		switch s.Align {
 		case core.AlignCenter:

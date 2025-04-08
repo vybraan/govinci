@@ -9,6 +9,8 @@ type Style struct {
 	Margin       EdgeInsets
 	BorderRadius int
 	Shadow       int
+	Width        int
+	Height       int
 	Align        Alignment
 	Display      DisplayMode
 }
@@ -35,6 +37,17 @@ func (f styleFunc) Apply(s *Style) {
 func FontSize(size int) StyleProp {
 	return styleFunc(func(s *Style) {
 		s.FontSize = size
+	})
+}
+func Width(size int) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.Width = size
+	})
+}
+
+func Height(size int) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.Height = size
 	})
 }
 
@@ -119,6 +132,12 @@ func UseStyle(s Style) StyleProp {
 		}
 		if s.Background != "" {
 			target.Background = s.Background
+		}
+		if s.Width != 0 {
+			target.Width = s.Width
+		}
+		if s.Height != 0 {
+			target.Height = s.Height
 		}
 		if s.BorderRadius != 0 {
 			target.BorderRadius = s.BorderRadius
