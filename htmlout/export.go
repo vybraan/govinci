@@ -86,6 +86,16 @@ func renderNode(b *strings.Builder, node *core.Node, indent int) {
 		}
 		b.WriteString("</span>\n")
 		return
+	case "Button":
+		b.WriteString(fmt.Sprintf("%s<button%s>", pad, attrs))
+		if label, ok := node.Props["label"].(string); ok {
+			b.WriteString(label)
+		}
+		b.WriteString("</button>\n")
+		return
+	case "CameraView":
+		b.WriteString(fmt.Sprintf("%s<div%s>[Camera View]</div>\n", pad, attrs))
+		return
 	}
 
 	// Default open tag

@@ -1,30 +1,49 @@
 package core
 
-func Row(children ...View) View {
+type PropsAndChildren any
+
+func Row(stylePropsAndChildren ...PropsAndChildren) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		var nodes []*Node
-		for _, child := range children {
-			nodes = append(nodes, child.Render(ctx))
+		base := ctx.Theme().Components.Row
+		style := &base
+		var children []View
+
+		for _, item := range stylePropsAndChildren {
+			switch v := item.(type) {
+			case StyleProp:
+				v.Apply(style)
+			case View:
+				children = append(children, v)
+			}
 		}
+
 		return &Node{
 			Type:     "Row",
-			Props:    map[string]any{},
-			Children: nodes,
+			Style:    style,
+			Children: renderAll(ctx, children),
 		}
 	})
 }
 
-func Card(children ...View) View {
+func Card(stylePropsAndChildren ...PropsAndChildren) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		var nodes []*Node
-		for _, child := range children {
-			nodes = append(nodes, child.Render(ctx))
+		base := ctx.Theme().Components.Card
+		style := &base
+		var children []View
+
+		for _, item := range stylePropsAndChildren {
+			switch v := item.(type) {
+			case StyleProp:
+				v.Apply(style)
+			case View:
+				children = append(children, v)
+			}
 		}
+
 		return &Node{
 			Type:     "Card",
-			Props:    map[string]any{},
-			Style:    &ctx.Theme().Components.Card,
-			Children: nodes,
+			Style:    style,
+			Children: renderAll(ctx, children),
 		}
 	})
 }
@@ -75,17 +94,26 @@ func Fragment(children ...View) View {
 		}
 	})
 }
-func Column(children ...View) View {
+
+func Column(stylePropsAndChildren ...PropsAndChildren) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		var nodes []*Node
-		for _, child := range children {
-			nodes = append(nodes, child.Render(ctx))
+		base := ctx.Theme().Components.Column
+		style := &base
+		var children []View
+
+		for _, item := range stylePropsAndChildren {
+			switch v := item.(type) {
+			case StyleProp:
+				v.Apply(style)
+			case View:
+				children = append(children, v)
+			}
 		}
 
 		return &Node{
 			Type:     "Column",
-			Props:    map[string]any{}, // No specific props yet
-			Children: nodes,
+			Style:    style,
+			Children: renderAll(ctx, children),
 		}
 	})
 }

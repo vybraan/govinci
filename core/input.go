@@ -7,7 +7,8 @@ import (
 
 func Input(value string, placeholder string, onChange func(string), styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.Input
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}
@@ -28,7 +29,8 @@ func Input(value string, placeholder string, onChange func(string), styleProps .
 
 func Checkbox(checked bool, onToggle func(bool), styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.CheckBox
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}
@@ -48,7 +50,8 @@ func Checkbox(checked bool, onToggle func(bool), styleProps ...StyleProp) View {
 
 func InputPassword(value string, placeholder string, onChange func(string), styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.Input
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}
@@ -69,7 +72,8 @@ func InputPassword(value string, placeholder string, onChange func(string), styl
 
 func NumericInput(value int, onChange func(int), styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.Input
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}
@@ -93,7 +97,8 @@ func NumericInput(value int, onChange func(int), styleProps ...StyleProp) View {
 
 func TextArea(value string, onChange func(string), rows int, styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.TextArea
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}

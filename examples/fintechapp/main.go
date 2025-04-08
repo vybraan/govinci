@@ -1,91 +1,120 @@
 package main
 
 import (
-	"fmt"
 	"govinci/core"
 	"govinci/htmlout"
+	"os"
 )
+
+func main() {
+	ctx := core.NewContext().With(
+		core.WithThemeOpt(MaterialTheme()),
+		core.WithConfigOpt(&core.AppConfig{
+			Name:        "Govinci Material Wallet",
+			Description: "A Material Design wallet interface built with Govinci",
+			Version:     "1.0",
+		}),
+	)
+
+	node := App(ctx).Render(ctx)
+	html := htmlout.ExportHTML(node)
+	_ = os.WriteFile("materialwallet.html", []byte(html), 0644)
+}
 
 func App(ctx *core.Context) core.View {
 	return core.SafeArea(
 		core.Scroll(
 			core.Column(
+				HeaderSection(ctx),
 				core.Spacer(24),
-
-				core.Image("https://dummyimage.com/80x80/009688/ffffff&text=G", // logotipo
-					core.Margin(0),
-					core.Padding(8),
-					core.Align(core.AlignCenter),
-				),
-
-				core.Text("GovinciFin",
-					core.FontSize(24),
-					core.FontWeight(core.Bold),
-					core.TextColor("#009688"),
-					core.Align(core.AlignCenter),
-					core.Margin(12),
-				),
-
-				core.Card(
-					core.Text("Saldo disponível",
-						core.TextColor("#555"),
-						core.FontSize(14),
-					),
-					core.Text("MZN 42,750.00",
-						core.FontSize(22),
-						core.FontWeight(core.Bold),
-						core.TextColor("#009688"),
-					),
-					core.Spacer(12),
-					core.Row(
-						core.Button("Transferir", func() {}, core.BackgroundColor("#2196F3"), core.TextColor("#FFF")),
-						core.Spacer(8),
-						core.Button("Carregar", func() {}, core.BackgroundColor("#FFC107"), core.TextColor("#000")),
-					),
-				),
-
+				BalanceCard(ctx),
 				core.Spacer(24),
-
-				core.Text("Movimentos Recentes",
-					core.FontSize(18),
-					core.FontWeight(core.Bold),
-					core.TextColor("#222"),
-				),
-
-				core.Column(
-					core.Card(
-						core.Text("Farmácia"),
-						core.Text("-750 MZN", core.TextColor("#F44336")),
-					),
-					core.Card(
-						core.Text("Transferência recebida"),
-						core.Text("+10,000 MZN", core.TextColor("#4CAF50")),
-					),
-					core.Card(
-						core.Text("Recarga de saldo"),
-						core.Text("+3,500 MZN", core.TextColor("#4CAF50")),
-					),
-				),
-
-				core.Spacer(32),
+				ActionsSection(ctx),
+				core.Spacer(28),
+				TransactionList(ctx),
 			),
 		),
 	)
 }
 
-func main() {
-	baseCtx := core.NewContext()
+func HeaderSection(ctx *core.Context) core.View {
+	t := ctx.Theme()
+	return core.Column(
+		core.Image("https://dummyimage.com/60x60/6200EE/ffffff&text=G"),
+		core.Spacer(12),
+		core.Text("Govinci Wallet", core.FontSize(t.Typography.Title.FontSize), core.FontWeight(t.Typography.Title.FontWeight), core.TextColor(t.Colors.TextPrimary)),
+		core.Spacer(4),
+		core.Text("Welcome back, Ismael", core.FontSize(15), core.TextColor(t.Colors.TextSecondary)),
+	)
+}
 
-	cfg := &core.AppConfig{
-		Name:        "GovinciFin",
-		Description: "App financeira feita com Govinci DSL",
-		Version:     "1.0.0",
-		Locale:      "pt-MZ",
-		Author:      "Ismael GraHms",
+func BalanceCard(ctx *core.Context) core.View {
+	t := ctx.Theme()
+	return core.Card(
+		core.Column(
+			core.Text("Available Balance", core.FontSize(12), core.TextColor(t.Colors.TextSecondary)),
+			core.Spacer(8),
+			core.Text("MZN 42,750.00", core.FontSize(24), core.FontWeight(core.Bold), core.TextColor(t.Colors.Primary)),
+		),
+	)
+}
+
+func ActionsSection(ctx *core.Context) core.View {
+	t := ctx.Theme()
+	return core.Row(
+		MaterialButton("Transfer", t.Colors.Primary, "#FFF", func() {}),
+		core.Spacer(12),
+		MaterialButton("Recharge", "#FFF", t.Colors.Secondary, func() {}),
+	)
+}
+
+func MaterialButton(label string, bg string, fg string, onClick func()) core.View {
+	return core.Button(label,
+		onClick,
+		core.BackgroundColor(bg),
+		core.TextColor(fg),
+		core.Padding(12),
+		core.BorderRadius(6),
+	)
+}
+
+func TransactionList(ctx *core.Context) core.View {
+	t := ctx.Theme()
+	return core.Column(
+		core.Text("Recent Transactions", core.TextColor(t.Colors.TextPrimary), core.FontSize(16), core.FontWeight(core.Bold)),
+		core.Spacer(16),
+		TransactionItem("Farmácia", "-750 MZN", t.Colors.Error),
+		TransactionItem("Transferência recebida", "+10,000 MZN", t.Colors.Secondary),
+		TransactionItem("Recarga de saldo", "+3,500 MZN", t.Colors.Secondary),
+	)
+}
+
+func TransactionItem(label, amount, color string) core.View {
+	return core.Column(
+		core.Text(label),
+		core.Spacer(4),
+		core.Text(amount, core.TextColor(color)),
+		core.Spacer(12),
+	)
+}
+
+func MaterialTheme() *core.Theme {
+	return &core.Theme{
+		Colors: core.ColorPalette{
+			Primary:       "#6200EE",
+			Secondary:     "#03DAC6",
+			Error:         "#B00020",
+			TextPrimary:   "#000000",
+			TextSecondary: "#666666",
+			Background:    "#FFFFFF",
+			Surface:       "#F5F5F5",
+		},
+		Typography: core.Typography{
+			Title:    core.Style{FontSize: 24, FontWeight: core.Bold},
+			Subtitle: core.Style{FontSize: 18},
+			Body:     core.Style{FontSize: 14},
+			Caption:  core.Style{FontSize: 12},
+		},
+		Spacing: core.SpacingScale{XS: 4, SM: 8, MD: 16, LG: 24, XL: 32},
 	}
-
-	ctx := baseCtx.WithConfig(cfg)
-	node := App(ctx).Render(ctx)
-	html := htmlout.ExportHTML(node)
-	fmt.Println(html)
 }

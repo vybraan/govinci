@@ -2,7 +2,8 @@ package core
 
 func Button(label string, onClick func(), styleProps ...StyleProp) View {
 	return ComponentFunc(func(ctx *Context) *Node {
-		style := &Style{}
+		base := ctx.Theme().Components.Button
+		style := &base
 		for _, sp := range styleProps {
 			sp.Apply(style)
 		}

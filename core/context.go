@@ -41,7 +41,7 @@ func (ctx *Context) Theme() *Theme {
 	if ctx.theme != nil {
 		return ctx.theme
 	}
-	return &DefaultTheme // fallback
+	return DefaultTheme // fallback
 }
 
 func (ctx *Context) Config() *AppConfig {
