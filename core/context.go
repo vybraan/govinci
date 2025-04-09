@@ -1,13 +1,23 @@
 package core
 
-import "log"
+import (
+	"fmt"
+	"log"
+	"sync"
+	"time"
+)
 
 type Context struct {
-	stateSlots []any
-	cursor     int
-	theme      *Theme
-	config     *AppConfig
+	slots         []any
+	Cursor        int
+	theme         *Theme
+	config        *AppConfig
+	idGen         int
+	lock          sync.Mutex
+	renderManager *RenderManager
+	contextID     string
 }
+
 type AppConfig struct {
 	Name        string
 	Description string
@@ -19,8 +29,33 @@ type AppConfig struct {
 
 func NewContext() *Context {
 	return &Context{
-		stateSlots: make([]any, 0),
-		cursor:     0,
+		slots:         make([]any, 0),
+		Cursor:        0,
+		renderManager: NewRenderManager(),
+		contextID:     fmt.Sprintf("ctx_%d", time.Now().UnixNano()),
+	}
+}
+
+func NewState[T any](ctx *Context, initial T) State[T] {
+	ctx.lock.Lock()
+	defer ctx.lock.Unlock()
+
+	slotID := ctx.Cursor
+	if slotID >= len(ctx.slots) {
+		ctx.slots = append(ctx.slots, initial)
+	}
+	ctx.Cursor++
+
+	return State[T]{
+		get: func() T {
+			return ctx.slots[slotID].(T)
+		},
+		set: func(val T) {
+			ctx.slots[slotID] = val
+			log.Printf("[State] Updating slot %d with value: %#v", slotID, val)
+			// Trigger re-render
+			ctx.renderManager.TriggerRender(ctx.contextID)
+		},
 	}
 }
 
@@ -53,39 +88,18 @@ func (ctx *Context) Config() *AppConfig {
 
 func (ctx *Context) WithConfig(cfg *AppConfig) *Context {
 	return &Context{
-		stateSlots: ctx.stateSlots,
-		cursor:     ctx.cursor,
-		theme:      ctx.theme,
-		config:     cfg,
+		slots:  ctx.slots,
+		Cursor: ctx.Cursor,
+		theme:  ctx.theme,
+		config: cfg,
 	}
 }
 
 func (ctx *Context) WithTheme(theme *Theme) *Context {
 	return &Context{
-		stateSlots: ctx.stateSlots,
-		cursor:     ctx.cursor,
-		theme:      theme,
-	}
-}
-
-func NewState[T any](ctx *Context, initial T) State[T] {
-	log.Printf("NewState at cursor: %d (len=%d)", ctx.cursor, len(ctx.stateSlots))
-	if ctx.cursor >= len(ctx.stateSlots) {
-		log.Printf("Allocating slot %d with value: %#v", ctx.cursor, initial)
-		ctx.stateSlots = append(ctx.stateSlots, initial)
-	}
-
-	index := ctx.cursor
-	ctx.cursor++
-
-	return State[T]{
-		get: func() T {
-			return ctx.stateSlots[index].(T)
-		},
-		set: func(val T) {
-			log.Printf("Updating slot %d with value: %#v", index, val)
-			ctx.stateSlots[index] = val
-		},
+		slots:  ctx.slots,
+		Cursor: ctx.Cursor,
+		theme:  theme,
 	}
 }
 
