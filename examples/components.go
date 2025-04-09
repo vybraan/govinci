@@ -7,6 +7,7 @@ import (
 )
 
 func App(ctx *core.Context) core.View {
+
 	name := core.NewState(ctx, "")
 
 	return core.Column(

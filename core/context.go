@@ -14,7 +14,8 @@ type Context struct {
 	lock            sync.Mutex
 	renderManager   *RenderManager
 	callbackMap     map[string]any // Stable ID to callback
-	callbackCounter map[string]int // Per-type counter
+	callbackCounter int
+	usedCallbacks   map[string]bool
 }
 
 type AppConfig struct {
@@ -32,7 +33,7 @@ func NewContext() *Context {
 		Cursor:          0,
 		renderManager:   NewRenderManager(),
 		callbackMap:     make(map[string]any),
-		callbackCounter: make(map[string]int),
+		callbackCounter: 0,
 	}
 }
 
@@ -128,30 +129,7 @@ func WithConfigOpt(c *AppConfig) func(*Context) {
 	}
 }
 
-func (ctx *Context) RegisterCallback(key string, fn any) string {
-	typeName := callbackType(fn)
-	ctx.lock.Lock()
-	defer ctx.lock.Unlock()
-
-	if ctx.callbackCounter == nil {
-		ctx.callbackCounter = make(map[string]int)
-	}
-
-	id := typeName + ":" + key
-	ctx.callbackMap[id] = fn
-	ctx.callbackCounter[typeName]++
-	return id
-}
-
-func callbackType(fn any) string {
-	switch fn.(type) {
-	case func():
-		return "cb"
-	case func(string):
-		return "txt_cb"
-	case func(bool):
-		return "bool_cb"
-	default:
-		return "unknown"
-	}
+func (ctx *Context) Reset() {
+	ctx.Cursor = 0
+	ctx.usedCallbacks = make(map[string]bool)
 }
