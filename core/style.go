@@ -140,6 +140,38 @@ func UseStyle(s Style) StyleProp {
 		}
 	})
 }
+func PrimaryColor() string { return "#007AFF" }
+func DangerColor() string  { return "#FF3B30" }
+func RoundedShadowBox() StyleProp {
+	return UseStyle(Style{
+		BorderRadius: 12,
+		Shadow:       2,
+		Background:   "#FFFFFF",
+	})
+}
+
+var TextInputStyle = UseStyle(Style{
+	FontSize:     16,
+	TextColor:    "#000000",
+	Background:   "#FFFFFF",
+	Padding:      EdgeInsets{Top: 10, Bottom: 10, Left: 12, Right: 12},
+	BorderRadius: 8,
+	Shadow:       1,
+})
+
+func PaddingTop(px int) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.Padding.Top = px
+	})
+}
+
+func PaddingHorizontal(px int) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.Padding.Horizontal = px
+	})
+}
+
+type ResponsiveStyle map[string]Style // "mobile", "tablet", "desktop"
 
 type Alignment string
 

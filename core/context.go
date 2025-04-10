@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"log"
 	"sync"
 )
@@ -16,6 +17,20 @@ type Context struct {
 	callbackMap     map[string]any // Stable ID to callback
 	callbackCounter int
 	usedCallbacks   map[string]bool
+	dirty           bool
+}
+
+func (ctx *Context) MarkDirty() {
+	fmt.Println("marked dirty")
+	ctx.dirty = true
+}
+
+func (ctx *Context) IsDirty() bool {
+	return ctx.dirty
+}
+
+func (ctx *Context) ClearDirty() {
+	ctx.dirty = false
 }
 
 type AppConfig struct {

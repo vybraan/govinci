@@ -109,14 +109,15 @@ const Govinci = (() => {
     }
 
     function extractEventPayload(e, type) {
-        if (["Input", "TextArea", "NumericInput", "InputPassword"].includes(type)) {
+        if (["input", "textarea", "numericinput", "inputpassword"].includes(type)) {
             return { value: e.target.value };
         }
-        if (type === "Checkbox") {
+        if (type === "checkbox") {
             return { value: e.target.checked };
         }
         return {};
     }
+
 
     function mount(jsonTree, mountPointId = "app") {
         const tree = typeof jsonTree === "string" ? JSON.parse(jsonTree) : jsonTree;
@@ -140,40 +141,34 @@ const Govinci = (() => {
 
             switch (p.Type) {
                 case "update-props":
-                    console.log("its an update propos type")
                     for (const [k, v] of Object.entries(p.Changes)) {
-                        if (k === "value" && el.value !== v) {
-                            el.value = v;
-                        }
-
-                        else if (k === "content" && el.textContent !== v) {
-                            el.textContent = v;
-                        }
-
+                        if (k === "value") el.value = v;
+                        else if (k === "content") el.textContent = v;
                         else if (k === "placeholder") el.placeholder = v;
-                        else if (k === "label") {
-                            el.textContent = v;
-                        }
-
                         else if (k.startsWith("on")) {
                             const event = mapEventName(k);
-                            const old = el.dataset?.[`listener_${k}`];
-                            if (old) {
-                                el.removeEventListener(event, callbackMap[old]);
-                                delete callbackMap[old];
+                            const oldListenerId = el.dataset[`listener_${k}`];
+
+                            // 🔥 Remove o antigo handler
+                            if (oldListenerId && callbackMap[oldListenerId]) {
+                                el.removeEventListener(event, callbackMap[oldListenerId]);
+                                delete callbackMap[oldListenerId];
                             }
+                            // 🧠 Registra novo handler com novo ID
                             const handler = (e) => {
-                                const payload = extractEventPayload(e, el.nodeType);
-                                console.log("Triggering:", v, payload);
+                                const payload = extractEventPayload(e, el.tagName.toLowerCase());
+                                if (DEBUG) console.log("Triggering:", v, payload);
                                 window.GoInvokeCallback(v, payload);
                             };
-                            el.addEventListener(event, handler);
 
+
+                            el.addEventListener(event, handler);
                             el.dataset[`listener_${k}`] = v;
                             callbackMap[v] = handler;
                         }
                     }
                     break;
+
 
                 case "update-style":
                     Object.assign(el.style, styleFromGovinci(p.Changes));
@@ -202,3 +197,14 @@ const Govinci = (() => {
         patch,
     };
 })();
+
+function checkLoop() {
+    if (window.GovinciWASM.IsDirty()) {
+        console.log("dom is dirty")
+        const patch = window.GovinciWASM.RenderAgain();
+        Govinci.patch(patch);
+    }
+    requestAnimationFrame(checkLoop);
+}
+
+checkLoop(); // inicia o loop
