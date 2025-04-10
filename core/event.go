@@ -1,7 +1,9 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"sync"
 )
 
@@ -81,17 +83,37 @@ func TriggerBoolCallback(id string, val bool) {
 }
 
 func ReceiveEventPayload(payload map[string]any) {
-	if id, ok := payload["callback"].(string); ok {
-		switch val := payload["value"].(type) {
-		case string:
-			TriggerTextCallback(id, val)
-		case bool:
-			TriggerBoolCallback(id, val)
-		case nil:
-			TriggerCallback(id)
-		default:
-			TriggerCallback(id)
+	id, ok := payload["callback"].(string)
+	if !ok {
+		log.Println("callback ID inválido")
+		return
+	}
+	println("updating callback", id)
+
+	switch val := payload["value"].(type) {
+	case string:
+		// Tenta deserializar
+		var parsed map[string]any
+		if err := json.Unmarshal([]byte(val), &parsed); err == nil {
+			if v, ok := parsed["value"].(string); ok {
+				TriggerTextCallback(id, v)
+				return
+			}
+			if b, ok := parsed["value"].(bool); ok {
+				TriggerBoolCallback(id, b)
+				return
+			}
 		}
+
+		// Fallback: trata como string normal
+		TriggerTextCallback(id, val)
+
+	case bool:
+		TriggerBoolCallback(id, val)
+	case nil:
+		TriggerCallback(id)
+	default:
+		TriggerCallback(id)
 	}
 }
 

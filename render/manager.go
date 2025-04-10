@@ -13,24 +13,26 @@ type Manager struct {
 }
 
 func New(ctx *core.Context, rootView func(*core.Context) core.View) *Manager {
+	if ctx.Theme() == nil {
+		ctx = ctx.WithTheme(core.DefaultTheme)
+	}
 	return &Manager{
 		context:    ctx,
 		renderFunc: rootView,
 	}
 }
 
-// InitialRender Used once at app startup or when resetting the tree
-func (r *Manager) InitialRender() string {
+func (r *Manager) RenderInitial() string {
+
 	r.context.Reset()
 	r.currentTree = r.renderFunc(r.context).Render(r.context)
 	return renderJSON(r.currentTree)
 }
 
-// ReRender Used after an event (input/click/state change) to get diff
-func (r *Manager) ReRender() string {
+// RenderAgain ReRender Used after an event (input/click/state change) to get diff
+func (r *Manager) RenderAgain() string {
 	r.context.Reset()
 	newTree := r.renderFunc(r.context).Render(r.context)
-
 	patches := reconcile.Diff(r.currentTree, newTree, "root")
 	r.currentTree = newTree
 	core.PurgeUnusedCallbacks()

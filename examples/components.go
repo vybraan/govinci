@@ -23,7 +23,7 @@ func main() {
 	manager := render.New(ctx, App)
 
 	fmt.Println("🔁 Primeira renderização:")
-	fullRender := manager.RenderAndGetPatches()
+	fullRender := manager.RenderInitial()
 	fmt.Println(fullRender)
 
 	// Simulando evento de input
@@ -32,6 +32,6 @@ func main() {
 
 	// Re-render com patches
 	fmt.Println("🔁 Re-render com patches:")
-	patches := manager.RenderAndGetPatches()
+	patches := manager.RenderAgain()
 	fmt.Println(patches)
 }

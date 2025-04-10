@@ -89,14 +89,15 @@ func (ctx *Context) WithTheme(theme *Theme) *Context {
 }
 
 func NewState[T any](ctx *Context, initial T) State[T] {
-	log.Printf("NewState at Cursor: %d (len=%d)", ctx.Cursor, len(ctx.slots))
-	if ctx.Cursor >= len(ctx.slots) {
-		log.Printf("Allocating slot %d with value: %#v", ctx.Cursor, initial)
-		ctx.slots = append(ctx.slots, initial)
-	}
-
 	index := ctx.Cursor
 	ctx.Cursor++
+
+	if index >= len(ctx.slots) {
+		log.Printf("Allocating slot %d with value: %#v", index, initial)
+		ctx.slots = append(ctx.slots, initial)
+	} else {
+		log.Printf("Reusing slot %d with value: %#v", index, ctx.slots[index])
+	}
 
 	return State[T]{
 		get: func() T {

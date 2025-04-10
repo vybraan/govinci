@@ -37,6 +37,7 @@ type ComponentDefaults struct {
 	Camera   Style
 	CheckBox Style
 	TextArea Style
+	Text     Style
 }
 
 func WithTheme(theme *Theme, children ...View) View {
@@ -152,6 +153,15 @@ var DefaultTheme = &Theme{
 		Camera: Style{
 			Background: "#000000",
 			Display:    DisplayBlock,
+		},
+		Text: Style{
+			FontSize:     17,
+			FontWeight:   Normal,
+			TextColor:    "#000000",
+			Background:   "#FFFFFF",
+			Padding:      EdgeInsets{Top: 12, Bottom: 12, Left: 12, Right: 12},
+			BorderRadius: 6,
+			Display:      DisplayBlock,
 		},
 	},
 }
