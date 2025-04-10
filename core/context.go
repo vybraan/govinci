@@ -1,8 +1,6 @@
 package core
 
 import (
-	"fmt"
-	"log"
 	"sync"
 )
 
@@ -21,7 +19,6 @@ type Context struct {
 }
 
 func (ctx *Context) MarkDirty() {
-	fmt.Println("marked dirty")
 	ctx.dirty = true
 }
 
@@ -108,10 +105,10 @@ func NewState[T any](ctx *Context, initial T) State[T] {
 	ctx.Cursor++
 
 	if index >= len(ctx.slots) {
-		log.Printf("Allocating slot %d with value: %#v", index, initial)
+		//log.Printf("Allocating slot %d with value: %#v", index, initial)
 		ctx.slots = append(ctx.slots, initial)
 	} else {
-		log.Printf("Reusing slot %d with value: %#v", index, ctx.slots[index])
+		//log.Printf("Reusing slot %d with value: %#v", index, ctx.slots[index])
 	}
 
 	return State[T]{
@@ -119,7 +116,7 @@ func NewState[T any](ctx *Context, initial T) State[T] {
 			return ctx.slots[index].(T)
 		},
 		set: func(val T) {
-			log.Printf("Updating slot %d with value: %#v", index, val)
+			//log.Printf("Updating slot %d with value: %#v", index, val)
 			ctx.slots[index] = val
 			ctx.renderManager.TriggerRender("default")
 		},

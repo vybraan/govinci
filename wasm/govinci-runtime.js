@@ -8,7 +8,7 @@ const Govinci = (() => {
     function renderNode(node, path = "") {
         const el = createElement(node);
         el.setAttribute("data-node-path", path);
-        if (DEBUG) console.log("adding render node path", path);
+
 
         if (node.Type === "Spacer" && node.Props && node.Props.size) {
             el.style.height = `${node.Props.size}px`;
@@ -41,7 +41,6 @@ const Govinci = (() => {
                     }
                     const handler = (e) => {
                         const payload = extractEventPayload(e, node.Type);
-                        if (DEBUG) console.log("Triggering:", value, payload);
                         window.GoInvokeCallback(value, payload);
                     };
                     el.addEventListener(event, handler);
@@ -131,33 +130,35 @@ const Govinci = (() => {
         const patches = typeof patchList === "string" ? JSON.parse(patchList) : patchList;
 
         patches.forEach(p => {
-            if (DEBUG) console.log("found patch in runtime patcher", p);
             const el = document.querySelector(`[data-node-path="${p.TargetID}"]`);
             if (!el) {
-                if (DEBUG) console.log("could not find el to patch");
                 return;
             }
-            console.log("the element is:",el)
 
             switch (p.Type) {
                 case "update-props":
                     for (const [k, v] of Object.entries(p.Changes)) {
-                        if (k === "value") el.value = v;
-                        else if (k === "content") el.textContent = v;
-                        else if (k === "placeholder") el.placeholder = v;
-                        else if (k.startsWith("on")) {
+                        if (k === "value") {
+                            if (el.value === v) continue;
+                            el.value = v;
+                        } else if (k === "content") {
+                            if (el.textContent === v) continue;
+                            el.textContent = v;
+                        } else if (k === "placeholder") {
+                            if (el.placeholder === v) continue;
+                            el.placeholder = v;
+                        } else if (k.startsWith("on")) {
                             const event = mapEventName(k);
                             const oldListenerId = el.dataset[`listener_${k}`];
 
-                            // 🔥 Remove o antigo handler
+
                             if (oldListenerId && callbackMap[oldListenerId]) {
                                 el.removeEventListener(event, callbackMap[oldListenerId]);
                                 delete callbackMap[oldListenerId];
                             }
-                            // 🧠 Registra novo handler com novo ID
+
                             const handler = (e) => {
                                 const payload = extractEventPayload(e, el.tagName.toLowerCase());
-                                if (DEBUG) console.log("Triggering:", v, payload);
                                 window.GoInvokeCallback(v, payload);
                             };
 
@@ -199,12 +200,19 @@ const Govinci = (() => {
 })();
 
 function checkLoop() {
+
     if (window.GovinciWASM.IsDirty()) {
-        console.log("dom is dirty")
         const patch = window.GovinciWASM.RenderAgain();
         Govinci.patch(patch);
     }
     requestAnimationFrame(checkLoop);
 }
 
-checkLoop(); // inicia o loop
+function waitForWasm() {
+    if (window.GovinciWASM) {
+        checkLoop();
+    } else {
+        setTimeout(waitForWasm, 100);
+    }
+}
+waitForWasm();

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"govinci/core"
+	"govinci/hooks"
 	"govinci/render"
 	"math/rand"
 	"syscall/js"
@@ -20,6 +21,7 @@ var manager *render.Manager
 
 func renderInitial(this js.Value, args []js.Value) any {
 	manager = render.New(ctx, App) // `App` é tua função de root view
+	hooks.ClearIntervals()
 	out := manager.RenderInitial()
 	return js.ValueOf(out)
 }
@@ -71,6 +73,12 @@ func App(ctx *core.Context) core.View {
 	email := core.NewState(ctx, "")
 	message := core.NewState(ctx, "")
 	output := core.NewState(ctx, "")
+	count := core.NewState(ctx, 0)
+
+	// Atualiza o contador a cada segundo
+	hooks.UseInterval(ctx, func() {
+		count.Set(count.Get() + 1)
+	}, time.Second)
 
 	formField := func(label string, value string, placeholder string, onChange func(string)) core.View {
 		return core.Column(
@@ -96,6 +104,7 @@ func App(ctx *core.Context) core.View {
 			),
 
 			core.Column(
+				core.Image("https://example.com/avatar.jpg", core.UseStyle(core.Style{BorderRadius: 40})),
 				formField("Nome Completo", name.Get(), "Digite o seu nome", name.Set),
 				formField("Email", email.Get(), "Digite o seu email", email.Set),
 				formField("Mensagem", message.Get(), "Digite a sua mensagem", message.Set),
@@ -131,6 +140,10 @@ func App(ctx *core.Context) core.View {
 				core.Shadow(2),
 			),
 			core.Align(core.AlignCenter),
+		),
+		core.Column(
+			core.Text("⏱️ Temporizador Automático:"),
+			core.Text(fmt.Sprintf("Contagem: %d", count.Get())),
 		),
 	)
 }
