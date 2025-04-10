@@ -7,14 +7,17 @@
 ## ✨ Features
 
 - **Declarative Syntax** – Compose views with pure functions and fluent props
-- **Native Rendering** – Output native components on Android/iOS 
+- **Native Rendering** – Output native components on Android/iOS
 - **Component-Based** – Build custom views by composing smaller ones
 - **Styling System** – Functional styling with support for themes and inheritance
-- **State Management** – Built-in state system inspired by hooks
+- **State Management** – Built-in state system inspired by hooks (`NewState`, `UseInterval`, `UseTimeout`, etc.)
 - **Event Handling** – Built-in callback registry for interactions
 - **Theming & Tokens** – Define centralized visual identity and reusable design primitives
 - **Bridge-Free Events** – Events and hardware calls require no manual bridge setup
 - **App Config Injection** – Provide global config for name, author, version, locale
+- **Reactive Runtime** – Smart diffing engine with `patch` and `mount`, dirty flag detection
+- **Timers & Effects** – Hooks like `UseInterval`, `UseTimeout`, and soon `UseEffect`
+- **WebAssembly Support** – Works in browser environments via Go + WASM
 
 ---
 
@@ -122,10 +125,13 @@ func Post(content string, tags ...string) core.View {
 
 ## 📐 Architecture
 
-- `core/` – core abstractions: Node, View, Context, State
+- `core/` – core abstractions: Node, View, Context, State, Style
+- `hooks/` – reactive utilities like `UseInterval`, `UseTimeout`, `UseEffect` (coming soon)
+- `render/` – render manager, patching logic, and JSON tree generation
 - `android/` – native renderer for Android (Kotlin)
 - `ios/` – native renderer for iOS (Swift or Kotlin Multiplatform)
 - `examples/` – declarative UI demos in Go
+- `wasm/` – WebAssembly runtime and JS bridge for testing in browser
 
 ---
 
@@ -137,7 +143,6 @@ Renderers are responsible for turning the abstract `Node` tree into real UI elem
 - Native iOS via `UIView`, `UILabel`, etc. (coming soon)
 - HTML (optional, for export and dev tools)
 
-
 ---
 
 ## 🛠 Dev Experience
@@ -146,10 +151,20 @@ Renderers are responsible for turning the abstract `Node` tree into real UI elem
 - Custom DSLs and style tokens
 - Testing helpers for views and events
 - Code generation for component scaffolds (planned)
+- Smart diff-based rendering with `IsDirty()` loop in JS runtime
+- Patch minimization to avoid unnecessary DOM updates
+
+---
+
+## 🧠 Hooks (State & Side Effects)
+
+- `NewState[T]` – basic reactive state
+- `UseInterval(ctx, fn, interval)` – run `fn` on an interval
+- `UseTimeout(ctx, fn, delay)` – run `fn` once after a delay
+- `UseEffect(ctx, fn)` – run once after mount (coming soon)
 
 ---
 
 ## 📃 License
 
 MIT License © 2025 Ismael GraHms
-
