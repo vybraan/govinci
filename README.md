@@ -120,6 +120,52 @@ func Post(content string, tags ...string) core.View {
     )
 }
 ```
+## 🧠 Conditional Components
+
+Govinci offers expressive helpers like `If`, `IfElse`, `Match`, and `When` to enable clear and composable **conditional rendering**.
+
+This eliminates verbose control flow scattered across functions and allows you to describe UI variations naturally and declaratively.
+
+### ✅ Benefits
+- Write cleaner, more declarative code
+- Avoid nested `if` statements in render logic
+- Make the UI adapt reactively to state changes
+- Encapsulate complex flows (like onboarding, permissions, login states)
+
+### ✨ Examples
+
+#### Simple `If`
+```go
+core.If(user.Get() != "", core.Text("Welcome, "+user.Get()))
+```
+
+#### With fallback
+```go
+core.IfElse(isLoading.Get(),
+    core.Text("Loading..."),
+    core.Text("Ready"),
+)
+```
+
+#### Match enum
+```go
+core.Match(status.Get(),
+    core.Case("success", core.Text("✅ Success")),
+    core.Case("error", core.Text("❌ Error")),
+    core.Default(core.Text("ℹ️ Idle")),
+)
+```
+
+#### Multiple conditions with `When`
+```go
+core.MatchBool(
+    core.When(user.Get() == "", core.Text("👋 Welcome Guest")),
+    core.When(user.Get() == "admin", core.Text("🛠️ Admin Panel")),
+    core.Otherwise(core.Text("Logged in as "+user.Get())),
+)
+```
+
+This leads to beautiful, logical component trees that **read like prose**.
 
 ---
 
