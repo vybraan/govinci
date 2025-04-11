@@ -56,6 +56,9 @@ const Govinci = (() => {
                 else if (key === "label") {
                     el.textContent = value;
                 }
+                else if (key === "src" && node.Type === "Image") {
+                    el.src = value;
+                }
 
             }
         }
@@ -216,3 +219,20 @@ function waitForWasm() {
     }
 }
 waitForWasm();
+
+
+window.GovinciRequestPermission = function (permission, callback) {
+    if (permission === "camera") {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                // Permissão concedida
+                stream.getTracks().forEach(track => track.stop()); // parar stream após teste
+                callback(true);
+            })
+            .catch(err => {
+                console.warn("Camera permission denied:", err);
+                callback(false);
+            });
+    }
+    // poderás adicionar outros casos como 'microphone', 'geolocation' etc.
+}

@@ -4,13 +4,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"govinci/core"
+	. "govinci/examples/social"
 	"govinci/hooks"
 	"govinci/render"
-	"math/rand"
 	"syscall/js"
-	"time"
 )
 
 var (
@@ -25,6 +23,14 @@ func renderInitial(this js.Value, args []js.Value) any {
 	out := manager.RenderInitial()
 	return js.ValueOf(out)
 }
+func RequestPermission(p Permission, onResult func(granted bool)) {
+	js.Global().Call("GovinciRequestPermission", string(p), js.FuncOf(func(this js.Value, args []js.Value) any {
+		granted := args[0].Bool()
+		onResult(granted)
+		return nil
+	}))
+}
+
 func isDirty(this js.Value, args []js.Value) any {
 	return js.ValueOf(ctx.IsDirty())
 }
@@ -33,6 +39,14 @@ func renderAgain(this js.Value, args []js.Value) any {
 	out := manager.RenderAgain()
 	return js.ValueOf(out)
 }
+
+type Permission string
+
+const (
+	PermissionCamera      Permission = "camera"
+	PermissionMicrophone  Permission = "microphone"
+	PermissionGeolocation Permission = "geolocation"
+)
 
 func receiveEvent(this js.Value, args []js.Value) any {
 	id := args[0].String()
@@ -69,96 +83,87 @@ func main() {
 }
 
 func App(ctx *core.Context) core.View {
-	name := core.NewState(ctx, "")
-	email := core.NewState(ctx, "")
-	message := core.NewState(ctx, "")
-	output := core.NewState(ctx, "")
-	count := core.NewState(ctx, 0)
+	return core.Navigator(func(ctx *core.Context) core.View {
+		currentTab := core.NewState(ctx, "home")
 
-	// Atualiza o contador a cada segundo
-	hooks.UseInterval(ctx, func() {
-		count.Set(count.Get() + 1)
-	}, time.Second)
-
-	formField := func(label string, value string, placeholder string, onChange func(string)) core.View {
 		return core.Column(
-			core.Text(label, core.FontWeight(core.Bold), core.FontSize(14), core.Margin(4)),
-			core.Input(value, placeholder, onChange,
-				core.FontSize(16),
-				core.Padding(10),
-				core.Margin(4),
-				core.BorderRadius(6),
-				core.BackgroundColor("#F5F5F5"),
+			core.Match(currentTab.Get(),
+				core.Case("home", HomePage(ctx)),
+				core.Case("search", SearchPage(ctx)),
+				core.Case("profile", ProfilePage(ctx)),
 			),
-			core.Spacer(12),
+			core.Row( // tab bar
+				TabButton("🏠", "home", currentTab),
+				TabButton("🔍", "search", currentTab),
+				TabButton("👤", "profile", currentTab),
+			),
+		)
+	})
+}
+
+func TabsComponent(ctx *core.Context, activeTab core.State[string]) core.View {
+	tabButton := func(label, key string) core.View {
+		active := activeTab.Get() == key
+		return core.Button(label, func() {
+			activeTab.Set(key)
+		},
+			core.Padding(10),
+			core.Margin(4),
+			core.BorderRadius(6),
+			core.FontWeight(core.Bold),
+			core.BackgroundColor(ifThen(active, "#007AFF", "#E0E0E0")),
+			core.TextColor(ifThen(active, "#FFFFFF", "#000000")),
 		)
 	}
 
-	return core.Row(
-		core.Column(
-			core.Text("Formulário de Contacto",
-				core.FontSize(26),
-				core.FontWeight(core.Bold),
-				core.Margin(16),
-				core.Align(core.AlignCenter),
-			),
+	return core.Column(
+		core.Text("🗂️ Selecione uma aba:", core.FontSize(20), core.Margin(8)),
 
-			core.Column(
-				core.Image("https://example.com/avatar.jpg", core.UseStyle(core.Style{BorderRadius: 40})),
-				formField("Nome Completo", name.Get(), "Digite o seu nome", name.Set),
-				formField("Email", email.Get(), "Digite o seu email", email.Set),
-				formField("Mensagem", message.Get(), "Digite a sua mensagem", message.Set),
-
-				core.Button("Enviar", func() {
-					summary := fmt.Sprintf("📬 Submetido:\nNome: %s\nEmail: %s\nMensagem: %s", name.Get(), email.Get(), message.Get())
-					output.Set(summary)
-				},
-					core.Padding(12),
-					core.FontSize(16),
-					core.FontWeight(core.Bold),
-					core.BackgroundColor("#007AFF"),
-					core.TextColor("#FFFFFF"),
-					core.BorderRadius(8),
-					core.Shadow(2),
-					core.Align(core.AlignCenter),
-				),
-
-				core.Spacer(20),
-
-				core.Text(output.Get(),
-					core.FontSize(15),
-					core.TextColor("#2C3E50"),
-					core.BackgroundColor("#ECF0F1"),
-					core.Padding(12),
-					core.Margin(8),
-					core.BorderRadius(6),
-					core.Shadow(1),
-				),
-				core.Padding(20),
-				core.BackgroundColor("#FFFFFF"),
-				core.BorderRadius(12),
-				core.Shadow(2),
-			),
-			core.Align(core.AlignCenter),
+		core.Row(
+			tabButton("Informações", "info"),
+			tabButton("Configurações", "settings"),
+			tabButton("Ajuda", "help"),
 		),
-		core.Column(
-			core.Text("⏱️ Temporizador Automático:"),
-			core.Text(fmt.Sprintf("Contagem: %d", count.Get())),
+
+		core.Spacer(16),
+
+		core.Match(activeTab.Get(),
+			core.Case("info", core.Text("📘 Esta é a aba de informações.")),
+			core.Case("settings", core.Text("⚙️ Configurações do sistema.")),
+			core.Case("help", core.Text("🆘 Ajuda e suporte técnico.")),
+			core.Default[string](core.Text("❓ Aba desconhecida")),
 		),
 	)
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
+func ifThen(cond bool, a, b string) string {
+	if cond {
+		return a
+	}
+	return b
 }
 
-func RandomString(length int) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	println("the generated name is", string(b))
-	return string(b)
+func HomeScreen(ctx *core.Context) core.View {
+	return core.Column(
+		core.Text("🏠 Tela Inicial", core.FontSize(22), core.FontWeight(core.Bold)),
+		core.Spacer(12),
+		core.Button("Ir para Detalhes", func() {
+			core.Push(ctx, DetailsScreen)
+		}),
+	)
+}
+
+func DetailsScreen(ctx *core.Context) core.View {
+
+	return core.Column(
+		core.Text("📄 Tela de Detalhes", core.FontSize(20), core.FontWeight(core.Bold)),
+		core.Spacer(8),
+		core.Button("Incrementar", func() {
+
+		}),
+		core.Spacer(12),
+		core.Button("⬅️ Voltar", func() {
+			core.Pop(ctx)
+		}),
+	)
 }
