@@ -31,7 +31,7 @@ package main
 
 import (
     "fmt"
-    "govinci/core"
+    "github.com/grahms/govinci/core"
 )
 
 func main() {
@@ -49,6 +49,8 @@ func main() {
 
 ### `app.go`
 ```go
+import "github.com/grahms/govinci/core"
+
 func App(ctx *core.Context) core.View {
     return core.SafeArea(
         core.Scroll(
@@ -66,6 +68,8 @@ func App(ctx *core.Context) core.View {
 
 ### `profile.go`
 ```go
+import "github.com/grahms/govinci/core"
+
 func ProfileHeader() core.View {
     return core.Column(
         core.Image("https://example.com/avatar.jpg", core.UseStyle(core.Style{BorderRadius: 40})),
@@ -94,6 +98,8 @@ func Stat(label, value string) core.View {
 
 ### `posts.go`
 ```go
+import "github.com/grahms/govinci/core"
+
 func PostList() core.View {
     return core.Column(
         Post("Enjoying the Govinci project! 🚀"),
