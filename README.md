@@ -31,7 +31,7 @@ package main
 
 import (
     "fmt"
-    "github.com/grahms/github.com/grahms/govinci/core"
+    "github.com/grahms/govinci/core"
 )
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 
 ### `app.go`
 ```go
-import "github.com/grahms/github.com/grahms/govinci/core"
+import "github.com/grahms/govinci/core"
 
 func App(ctx *core.Context) core.View {
     return core.SafeArea(
@@ -68,7 +68,7 @@ func App(ctx *core.Context) core.View {
 
 ### `profile.go`
 ```go
-import "github.com/grahms/github.com/grahms/govinci/core"
+import "github.com/grahms/govinci/core"
 
 func ProfileHeader() core.View {
     return core.Column(
@@ -98,7 +98,7 @@ func Stat(label, value string) core.View {
 
 ### `posts.go`
 ```go
-import "github.com/grahms/github.com/grahms/govinci/core"
+import "github.com/grahms/govinci/core"
 
 func PostList() core.View {
     return core.Column(
