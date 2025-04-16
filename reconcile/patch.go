@@ -102,7 +102,7 @@ func styleChanged(a, b *core.Style) bool {
 	if a == nil || b == nil {
 		return true
 	}
-	return *a != *b
+	return a != b
 }
 
 func min(a, b int) int {

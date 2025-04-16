@@ -1,5 +1,7 @@
 package core
 
+import "fmt"
+
 type PropsAndChildren any
 
 func Row(stylePropsAndChildren ...PropsAndChildren) View {
@@ -100,13 +102,15 @@ func Column(stylePropsAndChildren ...PropsAndChildren) View {
 		base := ctx.Theme().Components.Column
 		style := &base
 		var children []View
-
+		props := make(map[string]any)
 		for _, item := range stylePropsAndChildren {
 			switch v := item.(type) {
 			case StyleProp:
 				v.Apply(style)
 			case View:
 				children = append(children, v)
+			case BehaviorProp:
+				v.Apply(&Node{Props: props})
 			}
 		}
 
@@ -115,6 +119,46 @@ func Column(stylePropsAndChildren ...PropsAndChildren) View {
 			Style:    style,
 			Children: renderAll(ctx, children),
 		}
+	})
+}
+func Box(stylePropsAndChildren ...PropsAndChildren) View {
+	return ComponentFunc(func(ctx *Context) *Node {
+		style := &Style{}
+		var children []View
+
+		for _, item := range stylePropsAndChildren {
+			switch v := item.(type) {
+			case StyleProp:
+				v.Apply(style)
+			case View:
+				children = append(children, v)
+			case BehaviorProp:
+				// future event handlers
+			}
+		}
+
+		return &Node{
+			Type:     "Box", // pode cair como "div" no runtime
+			Style:    style,
+			Children: renderAll(ctx, children),
+		}
+	})
+}
+func Divider(height int, color string) View {
+	return Box(
+		Height(fmt.Sprintf("%dpx", height)),
+		BackgroundColor(color),
+		Margin(8),
+	)
+}
+func BorderColor(hex string) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.BorderColor = hex
+	})
+}
+func BorderWidth(px float64) StyleProp {
+	return styleFunc(func(s *Style) {
+		s.BorderWidth = px
 	})
 }
 

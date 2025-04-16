@@ -1,43 +1,43 @@
 package social
 
 import (
-	"govinci/core"
+	. "govinci/core"
 )
 
-func HomePage(ctx *core.Context) core.View {
-	return core.Column(
-		core.Text("🏠 Página Inicial", core.FontSize(24), core.FontWeight(core.Bold)),
-		core.Spacer(12),
-		core.Button("Abrir Detalhes", func() {
-			core.Push(ctx, DetailsPage)
+func HomePage(ctx *Context) View {
+	return Column(
+		Text("🏠 Página Inicial", FontSize(24), FontWeight(Bold)),
+		Spacer(12),
+		Button("Abrir Detalhes", func() {
+			Push(ctx, DetailsPage)
 		}),
 	)
 }
 
-func DetailsPage(ctx *core.Context) core.View {
-	//counter := core.NewState(ctx, 0)
+func DetailsPage(ctx *Context) View {
+	//counter := NewState(ctx, 0)
 
-	return core.Column(
-		core.Text("📄 Detalhes", core.FontSize(22), core.FontWeight(core.Bold)),
-		core.Spacer(10),
-		core.Spacer(8),
-		core.Button("⬅️ Voltar", func() {
-			core.Pop(ctx)
+	return Column(
+		Text("📄 Detalhes", FontSize(22), FontWeight(Bold)),
+		Spacer(10),
+		Spacer(8),
+		Button("⬅️ Voltar", func() {
+			Pop(ctx)
 		}),
 	)
 }
 
-func SearchPage(ctx *core.Context) core.View {
-	return core.Column(
-		core.Text("🔍 Pesquisa", core.FontSize(24), core.FontWeight(core.Bold)),
-		core.Input("", "Digite algo...", func(val string) {}),
+func SearchPage(ctx *Context) View {
+	return Column(
+		Text("🔍 Pesquisa", FontSize(24), FontWeight(Bold)),
+		Input("", "Digite algo...", func(val string) {}),
 	)
 }
 
-func ProfilePage(ctx *core.Context) core.View {
-	return core.Column(
-		core.Text("👤 Perfil", core.FontSize(24), core.FontWeight(core.Bold)),
-		core.Text("Nome: Ismael GraHms", core.FontSize(16)),
-		core.Text("Profissão: Engenheiro de Software"),
+func ProfilePage(ctx *Context) View {
+	return Column(
+		Text("👤 Perfil", FontSize(24), FontWeight(Bold)),
+		Text("Nome: Ismael GraHms", FontSize(16)),
+		Text("Profissão: Engenheiro de Software"),
 	)
 }

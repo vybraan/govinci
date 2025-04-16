@@ -7,6 +7,19 @@ func If(condition bool, view View) View {
 	return Fragment()
 }
 
+func For[T any](items []T, render func(item T, index int) View) View {
+	return ComponentFunc(func(ctx *Context) *Node {
+		var children []View
+		for i, item := range items {
+			children = append(children, render(item, i))
+		}
+		return &Node{
+			Type:     "Fragment",
+			Children: renderAll(ctx, children),
+		}
+	})
+}
+
 func IfElse(condition bool, thenView View, elseView View) View {
 	if condition {
 		return thenView

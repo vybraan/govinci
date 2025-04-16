@@ -1,17 +1,52 @@
 package core
 
 type Style struct {
-	FontSize     int
+	FontSize     float64
 	FontWeight   Weight
 	TextColor    string
 	Background   string
 	Padding      EdgeInsets
 	Margin       EdgeInsets
-	BorderRadius int
-	Shadow       int
+	BorderRadius float64
+	Shadow       float64
 	Align        Alignment
 	Display      DisplayMode
+	Width        string
+	Height       string
+	BorderColor  string
+	BorderWidth  float64
+	Position     Position
+	Top          string
+	Left         string
+	Right        string
+	Bottom       string
+	ZIndex       int
+	Overflow     string // "hidden", "scroll", "visible"
+	WhiteSpace   string // "nowrap", "normal", "pre-line"
+	LineHeight   int
+	MaxWidth     string
+	Gap          float64
+	Transition   string // "all 0.3s ease"
+	Animation    string // "bounce 2s infinite"
+
+	HoverStyle   *Style
+	FocusStyle   *Style
+	PseudoStates map[string]Style // ":hover", ":focus"
+
+	FlexDirection  FlexDirection
+	JustifyContent JustifyContent
+	AlignItems     AlignItems
+	MinHeight      string
+	MinWidth       string
+	ColumnGap      float64
+	RowGap         float64
+	FlexWrap       string
+	AlignSelf      AlignItems
+	FlexBasis      string
+	FlexShrink     float64
+	FlexGrow       float64
 }
+
 type Weight int
 
 const (
@@ -31,78 +66,6 @@ type styleFunc func(*Style)
 
 func (f styleFunc) Apply(s *Style) {
 	f(s)
-}
-func FontSize(size int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.FontSize = size
-	})
-}
-
-func TextColor(hex string) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.TextColor = hex
-	})
-}
-
-func BackgroundColor(hex string) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Background = hex
-	})
-}
-func Align(a Alignment) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Align = a
-	})
-}
-
-func Display(mode DisplayMode) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Display = mode
-	})
-}
-
-func Padding(all int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Padding = EdgeInsets{
-			Top: all, Right: all, Bottom: all, Left: all,
-		}
-	})
-}
-func BorderRadius(px int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.BorderRadius = px
-	})
-}
-
-func Shadow(elevation int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Shadow = elevation
-	})
-}
-
-func FontWeight(weight Weight) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.FontWeight = weight
-	})
-}
-
-func Margin(all int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Margin = EdgeInsets{
-			Top: all, Right: all, Bottom: all, Left: all,
-		}
-	})
-}
-
-func PaddingVertical(px int) StyleProp {
-	return styleFunc(func(s *Style) {
-		s.Padding.Vertical = px
-	})
-}
-func (s Style) With(other Style) Style {
-	merged := s
-	UseStyle(other).Apply(&merged)
-	return merged
 }
 
 func UseStyle(s Style) StyleProp {
@@ -138,6 +101,19 @@ func UseStyle(s Style) StyleProp {
 		if s.Margin != (EdgeInsets{}) {
 			target.Margin = s.Margin
 		}
+		if s.Bottom != "" {
+			target.Bottom = s.Bottom
+		}
+		if s.Left != "" {
+			target.Left = s.Left
+		}
+		if s.Right != "" {
+			target.Right = s.Right
+		}
+		if s.ZIndex != 0 {
+			target.ZIndex = s.ZIndex
+		}
+
 	})
 }
 func PrimaryColor() string { return "#007AFF" }
@@ -193,3 +169,43 @@ const (
 	DisplayInline  DisplayMode = "inline"
 	DisplayBlock   DisplayMode = "block"
 )
+
+type JustifyContent string
+type FlexDirection string
+type AlignItems string
+
+const (
+	JustifyStart   JustifyContent = "flex-start"
+	JustifyCenter  JustifyContent = "center"
+	JustifyEnd     JustifyContent = "flex-end"
+	JustifyBetween JustifyContent = "space-between"
+	JustifyAround  JustifyContent = "space-around"
+	JustifyEvenly  JustifyContent = "space-evenly"
+
+	AlignItemsStart   AlignItems = "flex-start"
+	AlignItemsCenter  AlignItems = "center"
+	AlignItemsEnd     AlignItems = "flex-end"
+	AlignItemsStretch AlignItems = "stretch"
+
+	FlexRow     FlexDirection = "row"
+	FlexColumn  FlexDirection = "column"
+	DisplayFlex               = "flex"
+)
+
+type Position string
+
+const (
+	PositionRelative Position = "relative"
+	PositionAbsolute Position = "absolute"
+	PositionFixed    Position = "fixed"
+	PositionSticky   Position = "sticky"
+)
+
+//func Responsive(breakpoint string, style Style) StyleProp {
+//	return styleFunc(func(s *Style) {
+//		if s.Responsive == nil {
+//			s.Responsive = make(ResponsiveStyle)
+//		}
+//		s.Responsive[breakpoint] = style
+//	})
+//}

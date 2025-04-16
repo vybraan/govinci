@@ -13,9 +13,13 @@ type Context struct {
 	lock            sync.Mutex
 	renderManager   *RenderManager
 	callbackMap     map[string]any // Stable ID to callback
-	callbackCounter int
+	callbackCounter *int
 	usedCallbacks   map[string]bool
 	dirty           bool
+	parent          *Context
+
+	children       []*Context
+	childrenCursor int
 }
 
 func (ctx *Context) MarkDirty() {
@@ -40,13 +44,35 @@ type AppConfig struct {
 }
 
 func NewContext() *Context {
+	cc := 0
 	return &Context{
 		slots:           make([]any, 0),
 		Cursor:          0,
 		renderManager:   NewRenderManager(),
 		callbackMap:     make(map[string]any),
-		callbackCounter: 0,
+		callbackCounter: &cc,
 	}
+}
+func (ctx *Context) NewChildContext() *Context {
+	return &Context{
+		slots:           make([]any, 0),
+		Cursor:          0,
+		theme:           ctx.theme,
+		config:          ctx.config,
+		renderManager:   ctx.renderManager,
+		callbackMap:     ctx.callbackMap,
+		callbackCounter: ctx.callbackCounter,
+		parent:          ctx,
+	}
+}
+func UseChildContext(ctx *Context) *Context {
+	index := ctx.Cursor
+	ctx.Cursor++
+
+	if index >= len(ctx.slots) {
+		ctx.slots = append(ctx.slots, ctx.NewChildContext())
+	}
+	return ctx.slots[index].(*Context)
 }
 
 type State[T any] struct {
