@@ -173,6 +173,22 @@ core.MatchBool(
 
 This leads to beautiful, logical component trees that **read like prose**.
 
+## 🎯 Event Handlers
+
+You can attach callbacks to any element using the generic `On` helper or the
+`ButtonWithEvent` constructor for buttons.
+
+```go
+core.Column(
+    core.Text("Tap the box"),
+    core.On("Click", func() { fmt.Println("Column clicked") }),
+)
+
+core.ButtonWithEvent("Hold", "TouchStart", func() {
+    fmt.Println("Button touched")
+})
+```
+
 ---
 
 ## 📐 Architecture
