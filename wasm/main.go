@@ -4,10 +4,10 @@ package main
 
 import (
 	"encoding/json"
-	"govinci/core"
-	. "govinci/examples/social"
-	"govinci/hooks"
-	"govinci/render"
+	"github.com/GraHms/govinci/core"
+	. "github.com/GraHms/govinci/examples/social"
+	"github.com/GraHms/govinci/hooks"
+	"github.com/GraHms/govinci/render"
 	"syscall/js"
 )
 

@@ -2,7 +2,7 @@ package htmlout
 
 import (
 	"fmt"
-	"govinci/core"
+	"github.com/GraHms/govinci/core"
 	"strings"
 )
 

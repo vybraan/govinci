@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"govinci/core"
-	"govinci/htmlout"
+	"github.com/GraHms/govinci/core"
+	"github.com/GraHms/govinci/htmlout"
 )
 
 func App(ctx *core.Context) core.View {

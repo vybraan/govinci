@@ -1,7 +1,7 @@
 package hooks
 
 import (
-	"govinci/core"
+	"github.com/GraHms/govinci/core"
 	"reflect"
 )
 

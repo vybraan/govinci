@@ -2,8 +2,8 @@ package render
 
 import (
 	"encoding/json"
-	"govinci/core"
-	"govinci/reconcile"
+	"github.com/GraHms/govinci/core"
+	"github.com/GraHms/govinci/reconcile"
 )
 
 type Manager struct {

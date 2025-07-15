@@ -3,8 +3,8 @@
 package main
 
 import (
-	"govinci/core"
-	"govinci/render"
+	"github.com/GraHms/govinci/core"
+	"github.com/GraHms/govinci/render"
 	"myapp/app"
 )
 

@@ -2,7 +2,7 @@ package jsonout
 
 import (
 	"encoding/json"
-	"govinci/core"
+	"github.com/GraHms/govinci/core"
 )
 
 func Export(node *core.Node) string {
