@@ -1,9 +1,10 @@
 package main
 
 import (
-	core "govinci/core"
-	"govinci/htmlout"
 	"os"
+
+	"github.com/GraHms/govinci/core"
+	"github.com/GraHms/govinci/htmlout"
 )
 
 func AppLayoutExample() core.View {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "govinci/core"
-	"govinci/htmlout"
+	. "github.com/GraHms/govinci/core"
+	"github.com/GraHms/govinci/htmlout"
 	"os"
 )
 

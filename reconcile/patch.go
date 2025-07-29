@@ -2,7 +2,7 @@ package reconcile
 
 import (
 	"fmt"
-	"govinci/core"
+	"github.com/GraHms/govinci/core"
 )
 
 // Patch represents a minimal change set between two Node trees

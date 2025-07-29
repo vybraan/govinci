@@ -1,6 +1,6 @@
 package social
 
-import "govinci/core"
+import "github.com/GraHms/govinci/core"
 
 func TabButton(icon, tab string, selected core.State[string]) core.View {
 	isActive := selected.Get() == tab
